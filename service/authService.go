@@ -4,12 +4,13 @@ import (
 	"errors"
 	"github.com/ashishjuyal/banking-auth/domain"
 	"github.com/ashishjuyal/banking-auth/dto"
+	"github.com/ashishjuyal/banking-lib/errs"
 	"github.com/dgrijalva/jwt-go"
 	"log"
 )
 
 type AuthService interface {
-	Login(dto.LoginRequest) (*string, error)
+	Login(dto.LoginRequest) (*string, *errs.AppError)
 	Verify(urlParams map[string]string) (bool, error)
 }
 
@@ -18,7 +19,7 @@ type DefaultAuthService struct {
 	rolePermissions domain.RolePermissions
 }
 
-func (s DefaultAuthService) Login(req dto.LoginRequest) (*string, error) {
+func (s DefaultAuthService) Login(req dto.LoginRequest) (*string, *errs.AppError) {
 	login, err := s.repo.FindBy(req.Username, req.Password)
 	if err != nil {
 		return nil, err

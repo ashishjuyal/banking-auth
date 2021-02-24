@@ -2,9 +2,9 @@ package domain
 
 import (
 	"database/sql"
-	"errors"
+	"github.com/ashishjuyal/banking-lib/errs"
+	"github.com/ashishjuyal/banking-lib/logger"
 	"github.com/dgrijalva/jwt-go"
-	"log"
 	"strings"
 	"time"
 )
@@ -18,7 +18,7 @@ type Login struct {
 	Role       string         `db:"role"`
 }
 
-func (l Login) GenerateToken() (*string, error) {
+func (l Login) GenerateToken() (*string, *errs.AppError) {
 	var claims jwt.MapClaims
 	if l.Accounts.Valid && l.CustomerId.Valid {
 		claims = l.claimsForUser()
@@ -29,8 +29,8 @@ func (l Login) GenerateToken() (*string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedTokenAsString, err := token.SignedString([]byte(HMAC_SAMPLE_SECRET))
 	if err != nil {
-		log.Println("Failed while signing token: " + err.Error())
-		return nil, errors.New("cannot generate token")
+		logger.Error("Failed while signing token: " + err.Error())
+		return nil, errs.NewUnexpectedError("cannot generate token")
 	}
 	return &signedTokenAsString, nil
 }

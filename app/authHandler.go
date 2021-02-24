@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/ashishjuyal/banking-auth/dto"
 	"github.com/ashishjuyal/banking-auth/service"
-	"log"
+	"github.com/ashishjuyal/banking-lib/logger"
 	"net/http"
 )
 
@@ -19,12 +19,12 @@ func (h AuthHandler) NotImplementedHandler(w http.ResponseWriter, r *http.Reques
 func (h AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var loginRequest dto.LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&loginRequest); err != nil {
-		log.Println("Error while decoding login request: " + err.Error())
+		logger.Error("Error while decoding login request: " + err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 	} else {
-		token, err := h.service.Login(loginRequest)
-		if err != nil {
-			writeResponse(w, http.StatusUnauthorized, err.Error())
+		token, appErr := h.service.Login(loginRequest)
+		if appErr != nil {
+			writeResponse(w, appErr.Code, appErr.AsMessage())
 		} else {
 			writeResponse(w, http.StatusOK, *token)
 		}
