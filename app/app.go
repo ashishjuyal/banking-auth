@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/ashishjuyal/banking-auth/domain"
 	"github.com/ashishjuyal/banking-auth/service"
+	"github.com/ashishjuyal/banking-lib/logger"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
@@ -25,7 +26,7 @@ func Start() {
 
 	address := os.Getenv("SERVER_ADDRESS")
 	port := os.Getenv("SERVER_PORT")
-	log.Println(fmt.Sprintf("Starting OAuth server on %s:%s ...", address, port))
+	logger.Info(fmt.Sprintf("Starting OAuth server on %s:%s ...", address, port))
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", address, port), router))
 }
 
@@ -60,7 +61,7 @@ func sanityCheck() {
 	}
 	for _, k := range envProps {
 		if os.Getenv(k) == "" {
-			log.Println(fmt.Sprintf("Environment variable %s not defined. Terminating application...", k))
+			logger.Error(fmt.Sprintf("Environment variable %s not defined. Terminating application...", k))
 		}
 	}
 }
