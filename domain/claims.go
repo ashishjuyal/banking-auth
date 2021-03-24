@@ -2,9 +2,21 @@ package domain
 
 import (
 	"github.com/dgrijalva/jwt-go"
+	"time"
 )
 
 const HMAC_SAMPLE_SECRET = "hmacSampleSecret"
+const TOKEN_DURATION = time.Hour
+const REFRESH_TOKEN_DURATION = time.Hour * 24 * 30
+
+type RefreshTokenClaims struct {
+	TokenType  string   `json:"token_type"`
+	CustomerId string   `json:"cid"`
+	Accounts   []string `json:"accounts"`
+	Username   string   `json:"un"`
+	Role       string   `json:"role"`
+	jwt.StandardClaims
+}
 
 type Claims struct {
 	CustomerId string   `json:"customer_id"`
@@ -45,4 +57,17 @@ func (c Claims) IsRequestVerifiedWithTokenClaims(urlParams map[string]string) bo
 		return false
 	}
 	return true
+}
+
+func (c Claims) RefreshTokenClaims() RefreshTokenClaims {
+	return RefreshTokenClaims{
+		TokenType:  "refresh_token",
+		CustomerId: c.CustomerId,
+		Accounts:   c.Accounts,
+		Username:   c.Username,
+		Role:       c.Role,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(REFRESH_TOKEN_DURATION).Unix(),
+		},
+	}
 }

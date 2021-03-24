@@ -7,8 +7,6 @@ import (
 	"time"
 )
 
-const TOKEN_DURATION = time.Hour
-
 type Login struct {
 	Username   string         `db:"username"`
 	CustomerId sql.NullString `db:"customer_id"`
