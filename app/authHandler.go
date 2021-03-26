@@ -55,6 +55,21 @@ func (h AuthHandler) Verify(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (h AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
+	var refreshRequest dto.RefreshTokenRequest
+	if err := json.NewDecoder(r.Body).Decode(&refreshRequest); err != nil {
+		logger.Error("Error while decoding refresh token request: " + err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		token, appErr := h.service.Refresh(refreshRequest)
+		if appErr != nil {
+			writeResponse(w, appErr.Code, appErr.AsMessage())
+		} else {
+			writeResponse(w, http.StatusOK, *token)
+		}
+	}
+}
+
 func notAuthorizedResponse(msg string) map[string]interface{} {
 	return map[string]interface{}{
 		"isAuthorized": false,
